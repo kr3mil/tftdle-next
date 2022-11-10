@@ -1,5 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
+import os
+import urllib.request
 
 sets = ["1", "2", "3", "4", "4-5", "5", "5-5", "6", "6-5", "7", "7-5"]
 json_all = {}
@@ -18,4 +20,27 @@ for set in sets:
   icons_origins = soup_all_origins.find_all("img", class_="m-8k2h0n")
 
   for icon in icons_classes:
-    print(f"Grabbing icon: {icon['alt']}")
+    name = icon['alt']
+
+    print(f"Grabbing icon: {name}")
+
+    src = icon['src']
+    set = src.split('tft-synergies-set')[1].split('/')[0]
+    
+    target_path = f"icons/{set}/traits/{name}.svg"
+
+    os.makedirs(os.path.dirname(target_path), exist_ok=True)
+    urllib.request.urlretrieve(src, target_path)
+  
+  for icon in icons_origins:
+    name = icon['alt']
+
+    print(f"Grabbing icon: {name}")
+
+    src = icon['src']
+    set = src.split('tft-synergies-set')[1].split('/')[0]
+    
+    target_path = f"icons/{set}/traits/{name}.svg"
+
+    os.makedirs(os.path.dirname(target_path), exist_ok=True)
+    urllib.request.urlretrieve(src, target_path)

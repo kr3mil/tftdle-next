@@ -42,16 +42,25 @@ const Searchbox = () => {
                     height="48"
                   />
                 </div>
-                <div className="absolute flex top-9 space-x-1">
-                  {champ.traits.map((trait) => (
-                    <div
-                      key={`${champ.name},${champ.set},${champ.traits}`}
-                      className="overflow-hidden rounded-full z-10"
-                    >
-                      <div className="w-[18px] h-[18px] bg-blue-600" />
-                    </div>
-                  ))}
-                </div>
+                {champ.name === "Nomsy" && (
+                  <div className="absolute flex top-9 space-x-1">
+                    {champ.traits.map((trait) => (
+                      <div
+                        key={`${champ.name},${champ.set},${trait}`}
+                        className="flex relative overflow-hidden rounded-full z-10"
+                      >
+                        <div className="flex w-[18px] h-[18px] border-blue-700 bg-blue-700 p-[1px] justify-center">
+                          <Image
+                            src={`/icons/${champ.set}/traits/${trait}.svg`}
+                            alt={`${champ.name}-${trait}`}
+                            width="22"
+                            height="22"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <p>
                 {champ.name} - Set {champ.set.replace("-", ".")}
