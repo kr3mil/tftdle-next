@@ -8,10 +8,6 @@ const Searchbox = () => {
   const [selectedPerson, setSelectedPerson] = useState("");
   const [searchText, setSearchText] = useState("");
 
-  useEffect(() => {
-    console.log(selectedPerson);
-  }, [selectedPerson]);
-
   const filteredChamps =
     searchText === ""
       ? []
@@ -29,7 +25,7 @@ const Searchbox = () => {
         <Combobox.Options className={`max-h-[40rem] overflow-y-scroll`}>
           {filteredChamps.map((champ) => (
             <Combobox.Option
-              key={`${champ.name} - ${champ.set}`}
+              key={`${champ.name} - ${champ.set} - ${champ.traits.join(",")}`}
               value={champ}
               className={({ active }) =>
                 `flex space-x-2 items-center last:border-b-0 border-b-[1px] p-2 hover:bg-blue-300 hover:cursor-pointer ${
@@ -37,13 +33,26 @@ const Searchbox = () => {
                 }`
               }
             >
-              <Image
-                src={`/${champ.icon}`}
-                alt={champ.name}
-                width="48"
-                height="48"
-                className="border"
-              />
+              <div className="flex relative justify-center">
+                <div className="overflow-hidden rounded-full border-2 border-cyan-400">
+                  <Image
+                    src={`/${champ.icon}`}
+                    alt={`${champ.name}`}
+                    width="48"
+                    height="48"
+                  />
+                </div>
+                <div className="absolute flex top-9 space-x-1">
+                  {champ.traits.map((trait) => (
+                    <div
+                      key={`${champ.name},${champ.set},${champ.traits}`}
+                      className="overflow-hidden rounded-full z-10"
+                    >
+                      <div className="w-[18px] h-[18px] bg-blue-600" />
+                    </div>
+                  ))}
+                </div>
+              </div>
               <p>
                 {champ.name} - Set {champ.set.replace("-", ".")}
               </p>
