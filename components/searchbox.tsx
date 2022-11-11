@@ -3,14 +3,14 @@ import { Combobox } from "@headlessui/react";
 import champs from "../json/all_champs.json";
 
 import Image from "next/image";
+import type { Champ } from "../pages/types";
 
-const Searchbox = () => {
-  const [selectedPerson, setSelectedPerson] = useState("");
+interface SearchboxProps {
+  handleGuess: (champ: Champ) => void;
+}
+
+const Searchbox = ({ handleGuess }: SearchboxProps) => {
   const [searchText, setSearchText] = useState("");
-
-  useEffect(() => {
-    console.log(selectedPerson);
-  }, [selectedPerson]);
 
   const filteredChamps =
     searchText === ""
@@ -20,16 +20,16 @@ const Searchbox = () => {
         });
 
   return (
-    <div className="relative cursor-default overflow-hidden rounded-lg text-left w-[42rem] shadow-md focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
-      <Combobox value={selectedPerson} onChange={setSelectedPerson}>
+    <div className="cursor-default overflow-hidden rounded-lg text-left w-[42rem] shadow-md focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
+      <Combobox onChange={(champ: Champ) => handleGuess(champ)}>
         <Combobox.Input
           onChange={(event) => setSearchText(event.target.value)}
           className="border-none py-4 pl-3 pr-10 w-full text-lg leading-5 focus:ring-0 focus:outline-none"
         />
-        <Combobox.Options className={`max-h-[40rem] overflow-y-scroll`}>
+        <Combobox.Options className={`top-0 max-h-[40rem] overflow-y-scroll`}>
           {filteredChamps.map((champ) => (
             <Combobox.Option
-              key={`${champ.name} - ${champ.set}`}
+              key={`${champ.name} - ${champ.set} - ${champ.traits.join(",")}`}
               value={champ}
               className={({ active }) =>
                 `flex space-x-2 items-center last:border-b-0 border-b-[1px] p-2 hover:bg-blue-300 hover:cursor-pointer ${
@@ -37,13 +37,35 @@ const Searchbox = () => {
                 }`
               }
             >
-              <Image
-                src={`/${champ.icon}`}
-                alt={champ.name}
-                width="48"
-                height="48"
-                className="border"
-              />
+              <div className="flex relative justify-center">
+                <div className="overflow-hidden rounded-full border-2 border-cyan-400">
+                  <Image
+                    src={`/${champ.icon}`}
+                    alt={`${champ.name}`}
+                    width="48"
+                    height="48"
+                  />
+                </div>
+                {champ.name === "Nomsy" && (
+                  <div className="absolute flex top-9 space-x-1">
+                    {champ.traits.map((trait) => (
+                      <div
+                        key={`${champ.name},${champ.set},${trait}`}
+                        className="flex relative overflow-hidden rounded-full z-10"
+                      >
+                        <div className="flex w-[18px] h-[18px] border-blue-700 bg-blue-700 p-[1px] justify-center">
+                          <Image
+                            src={`/icons/${champ.set}/traits/${trait}.svg`}
+                            alt={`${champ.name}-${trait}`}
+                            width="22"
+                            height="22"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <p>
                 {champ.name} - Set {champ.set.replace("-", ".")}
               </p>
