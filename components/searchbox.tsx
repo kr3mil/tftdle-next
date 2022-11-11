@@ -3,7 +3,7 @@ import { Combobox } from "@headlessui/react";
 import champs from "../json/all_champs.json";
 
 import Image from "next/image";
-import type { Champ } from "../pages/types";
+import type { Champ } from "../lib/types";
 
 interface SearchboxProps {
   handleGuess: (champ: Champ) => void;

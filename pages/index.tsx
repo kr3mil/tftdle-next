@@ -3,7 +3,7 @@ import Navbar from "../components/navbar";
 import Head from "next/head";
 import Image from "next/image";
 import Searchbox from "../components/searchbox";
-import type { Champ } from "./types";
+import type { Champ } from "../lib/types";
 import { useEffect, useState } from "react";
 import Guesses from "../components/guesses";
 import champs from "../json/all_champs.json";
