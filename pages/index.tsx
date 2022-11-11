@@ -18,6 +18,10 @@ export default function Home() {
 
   const handleGuess = (champ: Champ) => {
     setGuesses([champ, ...guesses]);
+
+    if (champ === champToGuess) {
+      alert("YOU GUESSED CORRECTLY POG");
+    }
   };
 
   return (
