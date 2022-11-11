@@ -1,4 +1,4 @@
-import type { Champ } from "../pages/types";
+import type { Champ } from "../lib/types";
 
 import Image from "next/image";
 
