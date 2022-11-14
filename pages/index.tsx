@@ -29,6 +29,26 @@ export default function Home() {
     }
   };
 
+  const handleCopyClipboardClick = () => {
+    let textBuilder =
+      "I found #TFTdle champion #LIGMA in only " +
+      guesses.length +
+      " attempts!\n\n";
+
+    for (let i = guesses.length - 1; i >= 0; i--) {
+      console.log(i);
+      textBuilder += guesses[i].set === champToGuess!.set ? "🟩" : "🟥";
+      textBuilder += guesses[i].cost === champToGuess!.cost ? "🟩" : "🟥";
+      textBuilder += guesses[i].health === champToGuess!.health ? "🟩" : "🟥";
+      textBuilder += guesses[i].range === champToGuess!.range ? "🟩" : "🟥";
+      textBuilder += "\n";
+    }
+
+    textBuilder += "\nhttps://tftdle.com";
+
+    navigator.clipboard.writeText(textBuilder);
+  };
+
   return (
     <div className="flex flex-col h-screen">
       <Head>
@@ -45,6 +65,15 @@ export default function Home() {
       )}
 
       <Guesses guesses={guesses} champToGuess={champToGuess} />
+
+      {guessedCorrectly && (
+        <button
+          className="rounded-xl border mt-4 w-[80%] self-center py-2 bg-cyan-800 text-white font-semibold"
+          onClick={handleCopyClipboardClick}
+        >
+          Copy to Clipboard!
+        </button>
+      )}
     </div>
   );
 }
