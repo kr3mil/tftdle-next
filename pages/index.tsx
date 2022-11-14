@@ -11,16 +11,21 @@ import champs from "../json/all_champs.json";
 export default function Home() {
   const [guesses, setGuesses] = useState<Champ[]>([]);
   const [champToGuess, setChampToGuess] = useState<Champ | undefined>();
+  const [guessedCorrectly, setGuessedCorrectly] = useState<Boolean>(false);
 
   useEffect(() => {
     setChampToGuess(champs[Math.floor(Math.random() * champs.length)]);
   }, []);
 
+  useEffect(() => {
+    console.log(champToGuess);
+  }, [champToGuess]);
+
   const handleGuess = (champ: Champ) => {
     setGuesses([champ, ...guesses]);
 
     if (champ === champToGuess) {
-      alert("YOU GUESSED CORRECTLY POG");
+      setGuessedCorrectly(true);
     }
   };
 
@@ -32,10 +37,13 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar />
-      <div className="border-t-[1px] border-gray-700 mb-4" />
-      <div className="flex flex-col items-center">
-        <Searchbox handleGuess={handleGuess} />
-      </div>
+      <div className="border-t-[1px] border-gray-700" />
+      {!guessedCorrectly && (
+        <div className="flex flex-col items-center mt-4">
+          <Searchbox handleGuess={handleGuess} />
+        </div>
+      )}
+
       <Guesses guesses={guesses} champToGuess={champToGuess} />
     </div>
   );
