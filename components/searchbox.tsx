@@ -23,6 +23,7 @@ const Searchbox = ({ handleGuess }: SearchboxProps) => {
     <div className="cursor-default transition-all duration-500 overflow-hidden rounded-lg text-left lg:w-[42rem] sm:w-[75%] shadow-md focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 text-sm">
       <Combobox onChange={(champ: Champ) => handleGuess(champ)}>
         <Combobox.Input
+          placeholder="Type champion name..."
           onChange={(event) => setSearchText(event.target.value)}
           className="border-none py-4 pl-3 pr-10 w-full text-lg leading-5 focus:ring-0 focus:outline-none"
         />
