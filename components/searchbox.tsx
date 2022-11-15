@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Combobox } from "@headlessui/react";
-import champs from "../json/all_champs.json";
+import champs from "../json/champs_new.json";
 
 import Image from "next/image";
 import type { Champ } from "../lib/types";

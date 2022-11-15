@@ -6,4 +6,5 @@ export interface Champ {
   traits: string[];
   set: string;
   icon: string;
+  gender: string;
 }
