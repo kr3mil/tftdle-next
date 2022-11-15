@@ -1,5 +1,4 @@
 import Head from "next/head";
-import { useState, useEffect } from "react";
 
 interface NavbarProps {
   tftdleCount: number | undefined;
