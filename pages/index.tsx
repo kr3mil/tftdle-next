@@ -96,7 +96,7 @@ export default function Home() {
       <Navbar tftdleCount={tftdleCount} />
       <div className="border-t-[1px] border-gray-700" />
       {!guessedCorrectly && (
-        <div className="flex flex-col items-center mt-4">
+        <div className="flex flex-col items-center mt-4 mb-12">
           <Searchbox handleGuess={handleGuess} />
         </div>
       )}

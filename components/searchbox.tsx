@@ -20,7 +20,7 @@ const Searchbox = ({ handleGuess }: SearchboxProps) => {
         });
 
   return (
-    <div className="cursor-default transition-all duration-500 overflow-hidden rounded-lg text-left lg:w-[42rem] sm:w-[75%] shadow-md focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 text-sm">
+    <div className="absolute bg-gray-700 z-20 cursor-default transition-all duration-500 overflow-hidden rounded-lg text-left lg:w-[42rem] sm:w-[75%] shadow-md focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 text-sm">
       <Combobox onChange={(champ: Champ) => handleGuess(champ)}>
         <Combobox.Input
           placeholder="Type champion name..."
