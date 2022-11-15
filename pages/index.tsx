@@ -6,7 +6,7 @@ import Searchbox from "../components/searchbox";
 import type { Champ } from "../lib/types";
 import { useEffect, useState } from "react";
 import Guesses from "../components/guesses";
-import champs from "../json/all_champs.json";
+import champs from "../json/champs_new.json";
 
 export default function Home() {
   const [guesses, setGuesses] = useState<Champ[]>([]);
@@ -58,9 +58,23 @@ export default function Home() {
 
     for (let i = guesses.length - 1; i >= 0; i--) {
       textBuilder += guesses[i].set === champToGuess!.set ? "🟩" : "🟥";
+
+      textBuilder += guesses[i].traits.every((r) =>
+        champToGuess!.traits.includes(r)
+      )
+        ? "🟩"
+        : guesses[i].traits.some((r) => champToGuess!.traits.includes(r))
+        ? "🟧"
+        : "🟥";
+
+      textBuilder += guesses[i].gender === champToGuess!.gender ? "🟩" : "🟥";
+
       textBuilder += guesses[i].cost === champToGuess!.cost ? "🟩" : "🟥";
+
       textBuilder += guesses[i].health === champToGuess!.health ? "🟩" : "🟥";
+
       textBuilder += guesses[i].range === champToGuess!.range ? "🟩" : "🟥";
+
       textBuilder += "\n";
     }
 

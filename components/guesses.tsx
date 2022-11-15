@@ -128,6 +128,43 @@ const Guesses = ({ guesses, champToGuess }: GuessesProps) => {
             ))}
           </div>
 
+          {/* GENDER */}
+          <div className="flex flex-col w-12 sm:w-16 md:w-20 items-center">
+            <p className="font-semibold">Gender</p>
+            <div className="border-t-[1px] w-[80%] mt-2" />
+            {guesses.map((guess, index) => (
+              <div
+                className={`flex transition-all duration-500 relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 border mt-2 items-center justify-center ${
+                  guess.gender === champToGuess.gender
+                    ? "bg-green-700 hover:bg-green-500"
+                    : "bg-red-700 hover:bg-red-500"
+                }`}
+                key={`${guess.gender}, ${index}`}
+              >
+                {guess.gender < champToGuess.gender ? (
+                  <Image
+                    src="/icons/up_arrow.png"
+                    alt="arrow"
+                    width="64"
+                    height="64"
+                    className="absolute opacity-40"
+                  />
+                ) : (
+                  guess.gender > champToGuess.gender && (
+                    <Image
+                      src="/icons/up_arrow.png"
+                      alt="arrow"
+                      width="64"
+                      height="64"
+                      className="absolute opacity-40 rotate-180"
+                    />
+                  )
+                )}
+                <p className="z-10">{guess.gender}</p>
+              </div>
+            ))}
+          </div>
+
           {/* COST */}
           <div className="flex flex-col w-12 sm:w-16 md:w-20 items-center">
             <p className="font-semibold">Cost</p>
