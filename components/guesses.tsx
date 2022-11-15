@@ -75,8 +75,10 @@ const Guesses = ({ guesses, champToGuess }: GuessesProps) => {
             {guesses.map((guess, index) => (
               <div
                 className={`flex transition-all duration-500 relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 border mt-2 items-center justify-center ${
-                  guess.traits === champToGuess.traits
+                  guess.traits.every((r) => champToGuess.traits.includes(r))
                     ? "bg-green-700 hover:bg-green-500"
+                    : guess.traits.some((r) => champToGuess.traits.includes(r))
+                    ? "bg-orange-700 hover:bg-orange-500"
                     : "bg-red-700 hover:bg-red-500"
                 }`}
                 key={`${guess.traits[0]}, ${index}`}
