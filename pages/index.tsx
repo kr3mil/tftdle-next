@@ -12,14 +12,33 @@ export default function Home() {
   const [guesses, setGuesses] = useState<Champ[]>([]);
   const [champToGuess, setChampToGuess] = useState<Champ | undefined>();
   const [guessedCorrectly, setGuessedCorrectly] = useState<Boolean>(false);
+  const [tftdleCount, setTftdleCount] = useState<number | undefined>();
+
+  function mulberry32(a: number) {
+    return function () {
+      var t = (a += 0x6d2b79f5);
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
 
   useEffect(() => {
-    setChampToGuess(champs[Math.floor(Math.random() * champs.length)]);
+    let today = new Date().toLocaleDateString();
+    let randomSeed: number = parseInt(today.replace("/", ""));
+
+    let randomNumFunc: Function = mulberry32(randomSeed);
+    let randomNum = randomNumFunc();
+
+    setChampToGuess(champs[Math.floor(randomNum * champs.length)]);
+
+    setTftdleCount(
+      Math.floor(
+        (new Date().getTime() - new Date("11/14/2022").getTime()) /
+          (1000 * 3600 * 24)
+      )
+    );
   }, []);
-
-  useEffect(() => {
-    console.log(champToGuess);
-  }, [champToGuess]);
 
   const handleGuess = (champ: Champ) => {
     setGuesses([champ, ...guesses]);
@@ -31,12 +50,13 @@ export default function Home() {
 
   const handleCopyClipboardClick = () => {
     let textBuilder =
-      "I found #TFTdle champion #LIGMA in only " +
+      "I found #TFTdle champion #" +
+      tftdleCount +
+      " in only " +
       guesses.length +
       " attempts!\n\n";
 
     for (let i = guesses.length - 1; i >= 0; i--) {
-      console.log(i);
       textBuilder += guesses[i].set === champToGuess!.set ? "🟩" : "🟥";
       textBuilder += guesses[i].cost === champToGuess!.cost ? "🟩" : "🟥";
       textBuilder += guesses[i].health === champToGuess!.health ? "🟩" : "🟥";
@@ -53,10 +73,13 @@ export default function Home() {
     <div className="flex flex-col h-screen">
       <Head>
         <title>TFTdle</title>
-        <meta name="description" content="TFT inspired wordle" />
+        <meta
+          name="description"
+          content="TFTdle, inspired by Wordle and Pokedle, is a daily TFT guessing game, guess the champion based off key attributes"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Navbar />
+      <Navbar tftdleCount={tftdleCount} />
       <div className="border-t-[1px] border-gray-700" />
       {!guessedCorrectly && (
         <div className="flex flex-col items-center mt-4">
