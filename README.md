@@ -1,10 +1,10 @@
-<h1 align="center">TFTdle</h1>
+<h1 align="center"><a href="https://tftdle.com">TFTdle</a></h1>
 
 <div align="center">
   <strong>TFT based Wordle clone</strong>
 </div>
 <div align="center">
-  Inspired by <a href="https://www.nytimes.com/games/wordle/index.html">Wordle</a> and <a href="https://www.pokedle.club">Pokedle</a>, <a href="https://tftdle.com">TFTdle</a> is a daily TFT guessing game. Guess the champion based off key attributes.
+  Inspired by <a href="https://www.nytimes.com/games/wordle/index.html">Wordle</a> and <a href="https://www.pokedle.club">Pokedle</a>
 </div>
 
 <br />
