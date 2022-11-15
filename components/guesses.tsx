@@ -42,7 +42,7 @@ const Guesses = ({ guesses, champToGuess }: GuessesProps) => {
                     ? "bg-green-700 hover:bg-green-500"
                     : "bg-red-700 hover:bg-red-500"
                 }`}
-                key={`${guess.name}, ${index}`}
+                key={`${guess.set}, ${index}`}
               >
                 {guess.set < champToGuess.set ? (
                   <Image
@@ -69,7 +69,62 @@ const Guesses = ({ guesses, champToGuess }: GuessesProps) => {
           </div>
 
           {/* TRAITS */}
-          {/* TODO */}
+          <div className="flex flex-col w-12 sm:w-16 md:w-20 items-center">
+            <p className="font-semibold">Traits</p>
+            <div className="border-t-[1px] w-[80%] mt-2" />
+            {guesses.map((guess, index) => (
+              <div
+                className={`flex transition-all duration-500 relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 border mt-2 items-center justify-center ${
+                  guess.traits === champToGuess.traits
+                    ? "bg-green-700 hover:bg-green-500"
+                    : "bg-red-700 hover:bg-red-500"
+                }`}
+                key={`${guess.traits[0]}, ${index}`}
+              >
+                <div className="flex-col items-center hidden md:flex text-sm">
+                  {guess.traits.map((trait, traitIndex) => (
+                    <p key={`${trait},${traitIndex}`} className="z-10">
+                      {trait}
+                    </p>
+                  ))}
+                </div>
+                <div className="flex-col items-center flex md:hidden">
+                  {guess.traits.map((trait, traitIndex) => {
+                    if (traitIndex < 2)
+                      return (
+                        <p key={`${trait},${traitIndex}`} className="z-10">
+                          <Image
+                            src={`/icons/${guess.set}/traits/${trait}.svg`}
+                            key={`${guess.name},${guess.set},${trait}`}
+                            width="20"
+                            height="20"
+                            alt={`${trait}`}
+                          />
+                        </p>
+                      );
+                  })}
+                </div>
+                {guess.traits.length > 2 && (
+                  <div className="flex-col items-center flex md:hidden">
+                    {guess.traits.map((trait, traitIndex) => {
+                      if (traitIndex >= 2)
+                        return (
+                          <p key={`${trait},${traitIndex}`} className="z-10">
+                            <Image
+                              src={`/icons/${guess.set}/traits/${trait}.svg`}
+                              key={`${guess.name},${guess.set},${trait}`}
+                              width="20"
+                              height="20"
+                              alt={`${trait}`}
+                            />
+                          </p>
+                        );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
 
           {/* COST */}
           <div className="flex flex-col w-12 sm:w-16 md:w-20 items-center">
@@ -82,7 +137,7 @@ const Guesses = ({ guesses, champToGuess }: GuessesProps) => {
                     ? "bg-green-700 hover:bg-green-500"
                     : "bg-red-700 hover:bg-red-500"
                 }`}
-                key={`${guess.name}, ${index}`}
+                key={`${guess.cost}, ${index}`}
               >
                 {guess.cost < champToGuess.cost ? (
                   <Image
@@ -120,7 +175,7 @@ const Guesses = ({ guesses, champToGuess }: GuessesProps) => {
                     ? "bg-green-700 hover:bg-green-500"
                     : "bg-red-700 hover:bg-red-500"
                 }`}
-                key={`${guess.name}, ${index}`}
+                key={`${guess.health}, ${index}`}
               >
                 {guess.health.split("/")[0].trim() <
                 champToGuess.health.split("/")[0].trim() ? (
@@ -159,7 +214,7 @@ const Guesses = ({ guesses, champToGuess }: GuessesProps) => {
                     ? "bg-green-700 hover:bg-green-500"
                     : "bg-red-700 hover:bg-red-500"
                 }`}
-                key={`${guess.name}, ${index}`}
+                key={`${guess.range}, ${index}`}
               >
                 {guess.range < champToGuess.range ? (
                   <Image
