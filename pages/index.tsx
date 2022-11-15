@@ -89,7 +89,7 @@ export default function Home() {
         <title>TFTdle</title>
         <meta
           name="description"
-          content="TFTdle, inspired by Wordle and Pokedle, is a daily TFT guessing game, guess the champion based off key attributes"
+          content="TFTdle, inspired by Wordle and Pokedle.club, is a daily TFT guessing game, guess the champion based off key attributes"
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
