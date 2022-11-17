@@ -25,6 +25,24 @@ export default function Home() {
 
   useEffect(() => {
     let today = new Date().toLocaleDateString();
+
+    if (guesses.length > 0) {
+      console.log(`Setting local: ${today}/guesses`);
+      console.log(JSON.stringify(guesses));
+      localStorage.setItem(`${today}/guesses`, JSON.stringify(guesses));
+    }
+
+    const checkIfCorrect = () => {
+      if (guesses[0] === champToGuess) {
+        setGuessedCorrectly(true);
+      }
+    };
+
+    checkIfCorrect();
+  }, [guesses, champToGuess]);
+
+  useEffect(() => {
+    let today = new Date().toLocaleDateString();
     let randomSeed: number = parseInt(today.replace("/", ""));
 
     let randomNumFunc: Function = mulberry32(randomSeed);
@@ -38,14 +56,21 @@ export default function Home() {
           (1000 * 3600 * 24)
       )
     );
+
+    const localStorageGuessesString = localStorage.getItem(`${today}/guesses`);
+
+    if (localStorageGuessesString) {
+      console.log(`local: ${localStorageGuessesString}`);
+      const localStorageGuesses = JSON.parse(localStorageGuessesString);
+
+      if (localStorageGuesses && localStorageGuesses.length > 0) {
+        setGuesses(localStorageGuesses);
+      }
+    }
   }, []);
 
   const handleGuess = (champ: Champ) => {
     setGuesses([champ, ...guesses]);
-
-    if (champ === champToGuess) {
-      setGuessedCorrectly(true);
-    }
   };
 
   const handleCopyClipboardClick = () => {
@@ -111,6 +136,10 @@ export default function Home() {
           Copy to Clipboard!
         </button>
       )}
+
+      <div className="opacity-0">
+        <p className="h-10">test</p>
+      </div>
     </div>
   );
 }
