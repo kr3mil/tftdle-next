@@ -209,15 +209,15 @@ const Guesses = ({ guesses, champToGuess }: GuessesProps) => {
             {guesses.map((guess, index) => (
               <div
                 className={`flex transition-all duration-500 relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 border mt-2 items-center justify-center ${
-                  guess.health.split("/")[0].trim() ===
-                  champToGuess.health.split("/")[0].trim()
+                  Number.parseInt(guess.health.split("/")[0].trim()) ===
+                  Number.parseInt(champToGuess.health.split("/")[0].trim())
                     ? "bg-green-700 hover:bg-green-500"
                     : "bg-red-700 hover:bg-red-500"
                 }`}
                 key={`${guess.health}, ${index}`}
               >
-                {guess.health.split("/")[0].trim() <
-                champToGuess.health.split("/")[0].trim() ? (
+                {Number.parseInt(guess.health.split("/")[0].trim()) <
+                Number.parseInt(champToGuess.health.split("/")[0].trim()) ? (
                   <Image
                     src="/icons/up_arrow.png"
                     alt="arrow"
@@ -226,8 +226,10 @@ const Guesses = ({ guesses, champToGuess }: GuessesProps) => {
                     className="absolute opacity-40"
                   />
                 ) : (
-                  guess.health.split("/")[0].trim() >
-                    champToGuess.health.split("/")[0].trim() && (
+                  Number.parseInt(guess.health.split("/")[0].trim()) >
+                    Number.parseInt(
+                      champToGuess.health.split("/")[0].trim()
+                    ) && (
                     <Image
                       src="/icons/up_arrow.png"
                       alt="arrow"
