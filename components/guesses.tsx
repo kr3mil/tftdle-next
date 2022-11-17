@@ -141,25 +141,6 @@ const Guesses = ({ guesses, champToGuess }: GuessesProps) => {
                 }`}
                 key={`${guess.gender}, ${index}`}
               >
-                {guess.gender < champToGuess.gender ? (
-                  <Image
-                    src="/icons/up_arrow.png"
-                    alt="arrow"
-                    width="64"
-                    height="64"
-                    className="absolute opacity-40"
-                  />
-                ) : (
-                  guess.gender > champToGuess.gender && (
-                    <Image
-                      src="/icons/up_arrow.png"
-                      alt="arrow"
-                      width="64"
-                      height="64"
-                      className="absolute opacity-40 rotate-180"
-                    />
-                  )
-                )}
                 <p className="z-10">{guess.gender}</p>
               </div>
             ))}
