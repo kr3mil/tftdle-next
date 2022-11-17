@@ -33,7 +33,10 @@ export default function Home() {
     }
 
     const checkIfCorrect = () => {
-      if (guesses[0] === champToGuess) {
+      if (!champToGuess) return;
+      if (!guesses || guesses.length < 1) return;
+
+      if (JSON.stringify(guesses[0]) === JSON.stringify(champToGuess)) {
         setGuessedCorrectly(true);
       }
     };
