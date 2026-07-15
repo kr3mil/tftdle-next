@@ -21,3 +21,18 @@ test("recovers corrupted storage and remains usable", async ({ page }) => {
   await expect(page.getByText(/saved data was damaged/i)).toBeVisible();
   await expect(page.getByRole("combobox", { name: "Choose a champion" })).toBeEnabled();
 });
+
+test("keeps the champion picker within the viewport", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("combobox", { name: "Choose a champion" }).click();
+
+  const popover = page.locator('[data-slot="popover-content"]');
+  const list = page.locator('[data-slot="command-list"]');
+  await expect(popover).toBeVisible();
+
+  const box = await popover.boundingBox();
+  expect(box).not.toBeNull();
+  expect(box!.y).toBeGreaterThanOrEqual(0);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+  await expect.poll(() => list.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
+});

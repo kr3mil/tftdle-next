@@ -41,10 +41,14 @@ export function ChampionSearch({ champions, guessedIds, disabled, onGuess }: {
           <ChevronsUpDown className="size-4 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-[min(92vw,42rem)] p-0" align="start">
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] p-0"
+        align="start"
+        collisionPadding={16}
+      >
         <Command shouldFilter={false}>
           <CommandInput value={query} onValueChange={setQuery} placeholder="Try ‘Ahri’, ‘Set 10’, or a trait…" aria-label="Search champions" />
-          <CommandList className="max-h-[min(28rem,65vh)]">
+          <CommandList className="max-h-[min(28rem,calc(var(--radix-popover-content-available-height)-2.5rem))]">
             <CommandEmpty>No champions match that search.</CommandEmpty>
             <CommandGroup heading={`${visible.length}${visible.length < available.length ? "+" : ""} champion versions shown`}>
               {visible.map((champion) => (
