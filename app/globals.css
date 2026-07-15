@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(0.12 0.018 251);
+  --foreground: oklch(0.94 0.014 89);
+  --card: oklch(0.17 0.024 251);
+  --card-foreground: oklch(0.94 0.014 89);
+  --popover: oklch(0.145 0.024 251);
+  --popover-foreground: oklch(0.96 0.01 89);
+  --primary: oklch(0.76 0.13 79);
+  --primary-foreground: oklch(0.15 0.03 251);
+  --secondary: oklch(0.22 0.032 247);
+  --secondary-foreground: oklch(0.9 0.02 89);
+  --muted: oklch(0.205 0.025 248);
+  --muted-foreground: oklch(0.72 0.02 247);
+  --accent: oklch(0.7 0.12 202);
+  --accent-foreground: oklch(0.12 0.02 251);
+  --destructive: oklch(0.62 0.2 26);
+  --border: oklch(0.3 0.04 245);
+  --input: oklch(0.25 0.034 247);
+  --ring: oklch(0.75 0.13 79);
+  --success: oklch(0.61 0.15 151);
+  --partial: oklch(0.7 0.14 69);
+  --miss: oklch(0.48 0.15 25);
+  --radius: 0.75rem;
+}
+
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-partial: var(--partial);
+  --color-miss: var(--miss);
+  --radius-sm: calc(var(--radius) * 0.75);
+  --radius-md: calc(var(--radius) * 0.875);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
+}
+
+* { border-color: var(--border); }
+html { color-scheme: dark; background: var(--background); }
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% -20%, oklch(0.32 0.08 214 / 0.28), transparent 43rem),
+    linear-gradient(180deg, oklch(0.14 0.025 251), var(--background) 45%);
+  color: var(--foreground);
+}
+button, [role="button"] { cursor: pointer; }
+::selection { background: oklch(0.76 0.13 79 / 0.28); }
+
+.arena-grid {
+  background-image:
+    linear-gradient(oklch(0.5 0.04 240 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.5 0.04 240 / 0.045) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

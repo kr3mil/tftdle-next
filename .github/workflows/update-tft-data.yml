@@ -1,0 +1,38 @@
+name: Update TFT data
+
+on:
+  schedule:
+    - cron: "17 8 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Generate pending catalog
+        run: npm run data:sync -- --pending
+      - run: npm run check
+      - run: npm run build
+      - name: Describe generated update
+        run: git diff --stat
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/tft-data
+          delete-branch: true
+          commit-message: "data: update TFT catalog"
+          title: "data: update TFT catalog"
+          body: |
+            Automated, review-required CommunityDragon snapshot update.
+
+            The pending catalog activates at the recorded UTC boundary. CI validates schema, assets, gameplay, and the production build. This pull request is never auto-merged.
+          labels: data-update

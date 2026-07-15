@@ -1,0 +1,107 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useMemo, useReducer, useState } from "react";
+import { CheckCircle2, Copy, Crown, Swords } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ChampionSearch } from "./champion-search";
+import { Countdown } from "./countdown";
+import { HowToPlayDialog, StatisticsDialog } from "./info-dialogs";
+import { ClueLegend, ResultsBoard } from "./results-board";
+import type { CatalogManifest, Champion } from "@/lib/game/types";
+import { answerForDate, snapshotForDate } from "@/lib/game/selection";
+import { puzzleNumber, utcDateKey } from "@/lib/game/date";
+import { buildShareText } from "@/lib/game/share";
+import { loadStoredGame, newGame, recordGuess, saveStoredGame, type PersistedGame } from "@/lib/game/storage";
+
+type State = { game: PersistedGame | null; notice: string; recovered: boolean };
+type Action =
+  | { type: "hydrate"; game: PersistedGame; recovered: boolean }
+  | { type: "guess"; championId: string; correct: boolean }
+  | { type: "notice"; notice: string };
+
+function reducer(state: State, action: Action): State {
+  if (action.type === "hydrate") return { game: action.game, recovered: action.recovered, notice: action.recovered ? "Saved data was damaged, so today’s game was safely reset." : "" };
+  if (action.type === "notice") return { ...state, notice: action.notice };
+  if (!state.game) return state;
+  return { ...state, game: recordGuess(state.game, action.championId, action.correct), notice: action.correct ? "Champion found!" : "Guess added." };
+}
+
+export function TftdleGame({ manifest }: { manifest: CatalogManifest }) {
+  const [state, dispatch] = useReducer(reducer, { game: null, notice: "", recovered: false });
+  const [manualShare, setManualShare] = useState("");
+  const today = state.game?.daily.date ?? manifest.active.effectiveFromUtc;
+  const snapshot = useMemo(() => snapshotForDate(manifest, today), [manifest, today]);
+  const answer = useMemo(() => answerForDate(manifest, today), [manifest, today]);
+  const number = puzzleNumber(today);
+
+  useEffect(() => {
+    const currentDate = utcDateKey();
+    const loaded = loadStoredGame(window.localStorage, currentDate, answerForDate(manifest, currentDate).id, snapshotForDate(manifest, currentDate).champions);
+    dispatch({ type: "hydrate", ...loaded });
+  }, [manifest]);
+
+  useEffect(() => {
+    if (state.game) saveStoredGame(window.localStorage, state.game);
+  }, [state.game]);
+
+  const guesses = useMemo(() => {
+    if (!state.game) return [];
+    return state.game.daily.guesses.map((id) => snapshot.champions.find((champion) => champion.id === id)).filter((champion): champion is Champion => Boolean(champion));
+  }, [snapshot.champions, state.game]);
+  const displayedGuesses = [...guesses].reverse();
+  const completed = state.game?.daily.completed ?? false;
+
+  function makeGuess(champion: Champion) {
+    dispatch({ type: "guess", championId: champion.id, correct: champion.id === answer.id });
+  }
+
+  async function share() {
+    const text = buildShareText(number, guesses, answer);
+    try {
+      await navigator.clipboard.writeText(text);
+      setManualShare("");
+      dispatch({ type: "notice", notice: "Results copied to your clipboard." });
+    } catch {
+      setManualShare(text);
+      dispatch({ type: "notice", notice: "Clipboard access was unavailable. Copy the results below." });
+    }
+  }
+
+  const game = state.game ?? newGame(today, answer.id);
+
+  return (
+    <main className="arena-grid min-h-screen">
+      <header className="sticky top-0 z-30 border-b bg-background/88 backdrop-blur-xl">
+        <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+          <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-lg border border-primary/35 bg-primary/10 shadow-[inset_0_0_18px_oklch(0.76_0.13_79/0.12)]"><Swords className="size-5 text-primary" /></span><div><p className="text-xl font-bold tracking-tight">TFT<span className="text-primary">dle</span></p><p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Daily champion #{number}</p></div></div>
+          <div className="flex items-center gap-1"><span className="mr-2 hidden lg:inline-flex"><Countdown /></span><HowToPlayDialog /><StatisticsDialog stats={game.stats} today={today} /></div>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+        <section className="mx-auto max-w-3xl text-center">
+          <Badge variant="outline" className="border-primary/35 bg-primary/8 font-mono text-[10px] uppercase tracking-[0.18em] text-primary">All standard sets · UTC daily</Badge>
+          <h1 className="mt-5 text-balance text-3xl font-semibold tracking-tight sm:text-5xl">Can you find today’s <span className="text-primary">TFT champion?</span></h1>
+          <p className="mx-auto mt-3 max-w-xl text-pretty text-sm leading-6 text-muted-foreground sm:text-base">Use each guess to compare the set, traits and battle stats. Every champion version from Set 1 to Set 17 is in play.</p>
+          <div className="mt-4 lg:hidden"><Countdown /></div>
+        </section>
+
+        <section className="mx-auto mt-8 max-w-3xl" aria-label="Champion guess">
+          <ChampionSearch champions={snapshot.champions} guessedIds={game.daily.guesses} disabled={!state.game || completed} onGuess={makeGuess} />
+          <div className="mt-4"><ClueLegend /></div>
+        </section>
+
+        <div className="mx-auto mt-8 max-w-6xl"><ResultsBoard guesses={displayedGuesses} answer={answer} /></div>
+
+        {completed && <Card className="mx-auto mt-8 max-w-3xl border-primary/35 bg-card/90 shadow-[0_0_50px_oklch(0.76_0.13_79/0.08)]"><CardContent className="flex flex-col items-center p-6 text-center sm:p-8"><Crown className="size-9 text-primary" /><p className="mt-3 font-mono text-xs uppercase tracking-[0.22em] text-primary">Puzzle complete</p><h2 className="mt-2 text-2xl font-semibold">You found {answer.name}</h2><div className="mt-4 flex items-center gap-3"><Image src={answer.image} alt={`${answer.name} portrait`} width={72} height={72} className="size-18 rounded-xl border border-primary/40 object-cover" /><div className="text-left"><p className="font-semibold">{answer.setLabel}</p><p className="text-sm text-muted-foreground">{guesses.length} {guesses.length === 1 ? "guess" : "guesses"}</p></div></div><Button className="mt-6 min-h-11 min-w-44" onClick={share}><Copy className="size-4" />Share results</Button><p className="mt-4"><Countdown /></p>{manualShare && <label className="mt-5 w-full text-left text-xs text-muted-foreground">Copy your results<textarea readOnly value={manualShare} onFocus={(event) => event.currentTarget.select()} className="mt-2 min-h-40 w-full rounded-lg border bg-background p-3 font-mono text-xs text-foreground outline-none focus:ring-2 focus:ring-ring" /></label>}</CardContent></Card>}
+
+        <div className="mt-6 min-h-6 text-center" aria-live="polite">{state.notice && <p className="inline-flex items-center gap-2 text-sm text-muted-foreground"><CheckCircle2 className="size-4 text-accent" />{state.notice}</p>}</div>
+      </div>
+
+      <footer className="border-t bg-background/60"><div className="mx-auto max-w-6xl px-4 py-8 text-center text-xs leading-5 text-muted-foreground sm:px-6"><p>TFTdle is an independent fan project and is not endorsed by Riot Games. Teamfight Tactics and all related assets are trademarks of Riot Games, Inc.</p><p className="mt-2">Game data sourced from Riot Data Dragon and CommunityDragon. Your progress never leaves this device.</p></div></footer>
+    </main>
+  );
+}
