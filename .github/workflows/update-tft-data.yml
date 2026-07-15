@@ -25,7 +25,7 @@ jobs:
       - run: npm run build
       - name: Describe generated update
         run: git diff --stat
-      - uses: peter-evans/create-pull-request@v7
+      - uses: peter-evans/create-pull-request@v8
         with:
           branch: automation/tft-data
           delete-branch: true
