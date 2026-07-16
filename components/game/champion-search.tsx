@@ -8,10 +8,11 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { Champion } from "@/lib/game/types";
 
-export function ChampionSearch({ champions, guessedIds, disabled, onGuess }: {
+export function ChampionSearch({ champions, guessedIds, disabled, easyMode, onGuess }: {
   champions: readonly Champion[];
   guessedIds: readonly string[];
   disabled: boolean;
+  easyMode: boolean;
   onGuess: (champion: Champion) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -49,8 +50,8 @@ export function ChampionSearch({ champions, guessedIds, disabled, onGuess }: {
         <Command shouldFilter={false}>
           <CommandInput value={query} onValueChange={setQuery} placeholder="Try ‘Ahri’, ‘Set 10’, or a trait…" aria-label="Search champions" />
           <CommandList className="max-h-[min(28rem,calc(var(--radix-popover-content-available-height)-2.5rem))]">
-            <CommandEmpty>No champions match that search.</CommandEmpty>
-            <CommandGroup heading={`${visible.length}${visible.length < available.length ? "+" : ""} champion versions shown`}>
+            <CommandEmpty>{easyMode ? "No possible champions match that search." : "No champions match that search."}</CommandEmpty>
+            <CommandGroup heading={easyMode ? `${available.length} possible champion versions` : `${visible.length}${visible.length < available.length ? "+" : ""} champion versions shown`}>
               {visible.map((champion) => (
                 <CommandItem
                   key={champion.id}

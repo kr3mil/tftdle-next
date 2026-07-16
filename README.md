@@ -9,6 +9,7 @@ Choose a set-specific champion version and use six clues to narrow down the answ
 - Set, Cost, Health, Attack Damage, and Range show an exact match or whether the answer is higher or lower.
 - Traits are exact only when the complete normalized trait set matches; any overlap is partial.
 - Guesses are unlimited. Completing consecutive UTC puzzles builds a streak.
+- Optional Easy mode removes champion versions that cannot reproduce all clues seen so far and summarizes the remaining possibilities. It must be selected before the first guess.
 - Progress and statistics stay in the browser. There are no accounts, APIs, or database.
 
 The puzzle epoch remains 14 November 2022, so existing puzzle numbering continues.
@@ -60,7 +61,7 @@ Source-specific anomalies belong in `scripts/tft-overrides.ts`; do not hide broa
 
 ## Persistence and troubleshooting
 
-The current schema is stored under `tftdle:v2`. Invalid data is removed safely and only the current day is reset. On the first v2 visit, the app attempts to map current-day legacy guesses by champion name and set; aggregate statistics begin fresh.
+The current schema is stored under `tftdle:v3`. It stores the daily mode and separate Standard/Easy guess statistics while sharing completions and streaks. Existing v2 history migrates into Standard statistics without deleting the old key. Earlier locale-key guesses can still be mapped for the current day by champion name and set. Invalid current data is removed safely and only the current day is reset.
 
 If generation fails, check the source patch and mutator in `scripts/tft-sources.ts`. CommunityDragon occasionally renames mutators when a set transitions between stages.
 

@@ -36,3 +36,4 @@ export type CatalogManifest = Readonly<{
 export type MatchKind = "exact" | "partial" | "higher" | "lower" | "miss";
 export type ClueKey = "set" | "traits" | "cost" | "health" | "attackDamage" | "range";
 export type Comparison = Readonly<Record<ClueKey, MatchKind>>;
+export type GameMode = "standard" | "easy";

@@ -18,5 +18,6 @@ describe("champion comparison", () => {
     const text = buildShareText(42, [answer], answer);
     expect(text).toContain("TFTdle #42 · 1 guess");
     expect(text).toContain("🟩🟩🟩🟩🟩🟩");
+    expect(buildShareText(42, [answer], answer, "easy")).toContain("TFTdle #42 · Easy · 1 guess");
   });
 });
