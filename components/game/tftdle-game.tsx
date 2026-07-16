@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { CheckCircle2, Copy, Crown, Swords } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,8 @@ function reducer(state: State, action: Action): State {
 export function TftdleGame({ manifest }: { manifest: CatalogManifest }) {
   const [state, dispatch] = useReducer(reducer, { game: null, notice: "", recovered: false });
   const [manualShare, setManualShare] = useState("");
+  const [celebrateCompletion, setCelebrateCompletion] = useState(false);
+  const completionRef = useRef<HTMLDivElement>(null);
   const today = state.game?.daily.date ?? manifest.active.effectiveFromUtc;
   const snapshot = useMemo(() => snapshotForDate(manifest, today), [manifest, today]);
   const answer = useMemo(() => answerForDate(manifest, today), [manifest, today]);
@@ -64,8 +66,20 @@ export function TftdleGame({ manifest }: { manifest: CatalogManifest }) {
   const possibilities = easyMode && !candidateFailure ? calculatedPossibilities : snapshot.champions;
   const deductionSummary = useMemo(() => easyMode ? summarizePossibilities(possibilities) : null, [easyMode, possibilities]);
 
+  useEffect(() => {
+    if (!completed || !celebrateCompletion) return;
+    const frame = requestAnimationFrame(() => {
+      const completion = completionRef.current;
+      if (!completion) return;
+      completion.focus({ preventScroll: true });
+      completion.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [celebrateCompletion, completed]);
+
   function makeGuess(champion: Champion) {
     const correct = champion.id === answer.id;
+    if (correct) setCelebrateCompletion(true);
     let notice = correct ? "Champion found!" : "Guess added.";
     if (easyMode && !correct) {
       const remaining = possibleChampions(snapshot.champions, [...guesses, champion], answer).length;
@@ -105,14 +119,14 @@ export function TftdleGame({ manifest }: { manifest: CatalogManifest }) {
         </section>
 
         <section className="mx-auto mt-8 max-w-3xl" aria-label="Champion guess">
-          <ChampionSearch champions={possibilities} guessedIds={game.daily.guesses} disabled={!state.game || completed} easyMode={easyMode} onGuess={makeGuess} />
-          <EasyModePanel mode={game.daily.mode} locked={game.daily.guesses.length > 0 || completed} hasGuesses={game.daily.guesses.length > 0} possibleCount={possibilities.length} totalCount={snapshot.champions.length} summary={deductionSummary} recovery={candidateFailure} onModeChange={(mode) => dispatch({ type: "mode", mode })} />
+          <ChampionSearch champions={possibilities} guessedIds={game.daily.guesses} disabled={!state.game || completed} easyMode={easyMode} completed={completed} onGuess={makeGuess} />
+          <EasyModePanel mode={game.daily.mode} locked={game.daily.guesses.length > 0 || completed} hasGuesses={game.daily.guesses.length > 0} possibleCount={possibilities.length} totalCount={snapshot.champions.length} summary={deductionSummary} recovery={candidateFailure} completed={completed} onModeChange={(mode) => dispatch({ type: "mode", mode })} />
           <div className="mt-4"><ClueLegend /></div>
         </section>
 
-        <div className="mx-auto mt-8 max-w-6xl"><ResultsBoard guesses={displayedGuesses} answer={answer} /></div>
+        {completed && <Card ref={completionRef} role="status" aria-label="Puzzle complete" tabIndex={-1} className={`mx-auto mt-8 max-w-3xl border-success/45 bg-card/95 outline-none shadow-[0_0_60px_oklch(0.61_0.15_151/0.13)] focus-visible:ring-2 focus-visible:ring-success ${celebrateCompletion ? "completion-reveal" : ""}`}><CardContent className="flex flex-col items-center p-6 text-center sm:p-8"><span className="grid size-14 place-items-center rounded-full border border-success/35 bg-success/12"><Crown className="size-8 text-success" /></span><p className="mt-3 font-mono text-xs uppercase tracking-[0.22em] text-success">Puzzle complete</p>{easyMode && <Badge variant="outline" className="mt-2 border-primary/35 bg-primary/8 text-primary">Easy mode</Badge>}<h2 className="mt-2 text-2xl font-semibold">You found {answer.name}</h2><div className="mt-4 flex items-center gap-3"><Image src={answer.image} alt={`${answer.name} portrait`} width={72} height={72} className="size-18 rounded-xl border border-success/40 object-cover" /><div className="text-left"><p className="font-semibold">{answer.setLabel}</p><p className="text-sm text-muted-foreground">Solved in {guesses.length} {guesses.length === 1 ? "guess" : "guesses"}</p></div></div><Button className="mt-6 min-h-11 min-w-44" onClick={share}><Copy className="size-4" />Share results</Button><p className="mt-4"><Countdown /></p>{manualShare && <label className="mt-5 w-full text-left text-xs text-muted-foreground">Copy your results<textarea readOnly value={manualShare} onFocus={(event) => event.currentTarget.select()} className="mt-2 min-h-40 w-full rounded-lg border bg-background p-3 font-mono text-xs text-foreground outline-none focus:ring-2 focus:ring-ring" /></label>}</CardContent></Card>}
 
-        {completed && <Card className="mx-auto mt-8 max-w-3xl border-primary/35 bg-card/90 shadow-[0_0_50px_oklch(0.76_0.13_79/0.08)]"><CardContent className="flex flex-col items-center p-6 text-center sm:p-8"><Crown className="size-9 text-primary" /><p className="mt-3 font-mono text-xs uppercase tracking-[0.22em] text-primary">Puzzle complete</p>{easyMode && <Badge variant="outline" className="mt-2 border-primary/35 bg-primary/8 text-primary">Easy mode</Badge>}<h2 className="mt-2 text-2xl font-semibold">You found {answer.name}</h2><div className="mt-4 flex items-center gap-3"><Image src={answer.image} alt={`${answer.name} portrait`} width={72} height={72} className="size-18 rounded-xl border border-primary/40 object-cover" /><div className="text-left"><p className="font-semibold">{answer.setLabel}</p><p className="text-sm text-muted-foreground">{guesses.length} {guesses.length === 1 ? "guess" : "guesses"}</p></div></div><Button className="mt-6 min-h-11 min-w-44" onClick={share}><Copy className="size-4" />Share results</Button><p className="mt-4"><Countdown /></p>{manualShare && <label className="mt-5 w-full text-left text-xs text-muted-foreground">Copy your results<textarea readOnly value={manualShare} onFocus={(event) => event.currentTarget.select()} className="mt-2 min-h-40 w-full rounded-lg border bg-background p-3 font-mono text-xs text-foreground outline-none focus:ring-2 focus:ring-ring" /></label>}</CardContent></Card>}
+        <div className="mx-auto mt-8 max-w-6xl"><ResultsBoard guesses={displayedGuesses} answer={answer} /></div>
 
         <div className="mt-6 min-h-6 text-center" aria-live="polite">{state.notice && <p className="inline-flex items-center gap-2 text-sm text-muted-foreground"><CheckCircle2 className="size-4 text-accent" />{state.notice}</p>}</div>
       </div>

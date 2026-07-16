@@ -7,7 +7,7 @@ const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://tftdle.com"),
+  metadataBase: new URL("https://www.tftdle.com"),
   title: { default: "TFTdle — Daily TFT Champion Guessing Game", template: "%s · TFTdle" },
   description: "Guess the daily Teamfight Tactics champion using set, traits, cost, health, attack damage, and range clues.",
   applicationName: "TFTdle",

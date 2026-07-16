@@ -1,6 +1,6 @@
 "use client";
 
-import { LockKeyhole, Sparkles } from "lucide-react";
+import { CheckCircle2, LockKeyhole, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DeductionSummary } from "@/lib/game/easy";
 import type { GameMode } from "@/lib/game/types";
@@ -22,6 +22,7 @@ export function EasyModePanel({
   totalCount,
   summary,
   recovery,
+  completed,
   onModeChange,
 }: {
   mode: GameMode;
@@ -31,6 +32,7 @@ export function EasyModePanel({
   totalCount: number;
   summary: DeductionSummary | null;
   recovery: boolean;
+  completed: boolean;
   onModeChange: (mode: GameMode) => void;
 }) {
   const enabled = mode === "easy";
@@ -63,21 +65,32 @@ export function EasyModePanel({
             enabled ? "border-primary/70 bg-primary" : "border-border bg-muted",
           )}
         >
-          <span className={cn("absolute top-0.5 size-5 rounded-full bg-white shadow-sm transition-transform", enabled ? "translate-x-5" : "translate-x-0.5")} />
+          <span
+            data-slot="switch-thumb"
+            className={cn(
+              "pointer-events-none absolute left-0.5 top-0.5 size-5 rounded-full bg-white shadow-sm transition-transform",
+              enabled ? "translate-x-[22px]" : "translate-x-0",
+            )}
+          />
         </button>
       </div>
 
-      {locked && <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground"><LockKeyhole className="size-3.5" aria-hidden="true" />Mode is locked after your first guess.</p>}
+      {locked && !completed && <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground"><LockKeyhole className="size-3.5" aria-hidden="true" />Mode is locked after your first guess.</p>}
 
       {enabled && (
         <div className="mt-3 border-t pt-3">
-          <p className="font-mono text-xs text-primary" aria-live="polite">
+          {completed ? (
+            <div className="flex items-start gap-2.5">
+              <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-hidden="true" />
+              <div><p className="font-semibold text-success">Puzzle solved</p><p className="mt-0.5 text-xs text-muted-foreground">All clues confirmed. Your result is ready below.</p></div>
+            </div>
+          ) : <p className="font-mono text-xs text-primary" aria-live="polite">
             {possibleCount.toLocaleString()} {possibleCount === 1 ? "possibility" : "possibilities"} remaining
             {hasGuesses && ` · ${eliminated.toLocaleString()} eliminated`}
-          </p>
-          {recovery && <p className="mt-2 text-xs text-destructive">The clue filter could not be applied safely, so all unguessed champions remain available.</p>}
-          {!hasGuesses && <p className="mt-2 text-xs text-muted-foreground">Make a guess to start narrowing the field.</p>}
-          {hasGuesses && facts.length > 0 && (
+          </p>}
+          {!completed && recovery && <p className="mt-2 text-xs text-destructive">The clue filter could not be applied safely, so all unguessed champions remain available.</p>}
+          {!completed && !hasGuesses && <p className="mt-2 text-xs text-muted-foreground">Make a guess to start narrowing the field.</p>}
+          {!completed && hasGuesses && facts.length > 0 && (
             <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
               {facts.map(([label, value]) => <div key={label} className="min-w-0 rounded-lg border bg-background/45 p-2.5"><dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</dt><dd className="mt-1 truncate text-xs font-medium" title={value}>{value}</dd></div>)}
             </dl>

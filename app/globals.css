@@ -76,6 +76,16 @@ button, [role="button"] { cursor: pointer; }
   background-size: 32px 32px;
 }
 
+@keyframes completion-reveal {
+  0% { opacity: 0; transform: translateY(1rem) scale(0.98); }
+  55% { opacity: 1; transform: translateY(-0.2rem) scale(1.01); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.completion-reveal {
+  animation: completion-reveal 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     scroll-behavior: auto !important;

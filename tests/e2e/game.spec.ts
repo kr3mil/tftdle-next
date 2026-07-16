@@ -12,6 +12,10 @@ test("completes and persists the daily puzzle", async ({ page }) => {
   await page.getByRole("combobox", { name: "Choose a champion" }).click();
   await page.getByRole("combobox", { name: "Search champions" }).fill(`${answer.name} ${answer.setLabel}`);
   await page.locator("[cmdk-item]").filter({ hasText: answer.name }).filter({ hasText: answer.setLabel }).first().click();
+  const completion = page.getByRole("status", { name: "Puzzle complete" });
+  await expect(completion).toBeVisible();
+  await expect(completion).toBeFocused();
+  await expect(page.getByRole("combobox", { name: "Puzzle complete" })).toBeDisabled();
   await expect(page.getByText(`You found ${answer.name}`)).toBeVisible();
   await page.reload();
   await expect(page.getByText(`You found ${answer.name}`)).toBeVisible();
@@ -31,6 +35,14 @@ test("keeps the champion picker within the viewport", async ({ page }) => {
   const popover = page.locator('[data-slot="popover-content"]');
   const list = page.locator('[data-slot="command-list"]');
   await expect(popover).toBeVisible();
+  const firstOption = page.locator("[cmdk-item]").first();
+  await firstOption.hover();
+  await expect(firstOption).toHaveAttribute("data-selected", "true");
+  const selectedColors = await firstOption.evaluate((element) => ({
+    item: getComputedStyle(element).color,
+    metadata: getComputedStyle(element.querySelector('[data-slot="champion-metadata"]')!).color,
+  }));
+  expect(selectedColors.metadata).toBe(selectedColors.item);
 
   const box = await popover.boundingBox();
   expect(box).not.toBeNull();
@@ -66,5 +78,8 @@ test("narrows and persists an Easy-mode daily puzzle", async ({ page }) => {
   await page.getByRole("combobox", { name: "Search champions" }).fill(`${answer.name} ${answer.setLabel}`);
   await page.locator("[cmdk-item]").filter({ hasText: answer.name }).filter({ hasText: answer.setLabel }).first().click();
   await expect(page.getByText(`You found ${answer.name}`)).toBeVisible();
+  await expect(page.getByText("Puzzle solved")).toBeVisible();
+  await expect(page.getByText(/1 possibility remaining/i)).toHaveCount(0);
+  await expect(page.getByRole("status", { name: "Puzzle complete" })).toBeFocused();
   await expect(page.locator('[data-slot="badge"]').filter({ hasText: "Easy mode" })).toBeVisible();
 });
