@@ -1,15 +1,19 @@
 # TFTdle
 
-TFTdle is a local-first daily Teamfight Tactics champion guessing game. Every player receives the same UTC puzzle, drawn from standard roster stages spanning Set 1 through the current set.
+TFTdle is a local-first daily Teamfight Tactics champion guessing game. Every player receives the same two UTC puzzles: Standard uses the latest TFT set, while Wild spans every historical and current standard roster.
 
 ## Game rules
 
-Choose a set-specific champion version and use six clues to narrow down the answer:
+Choose a roster mode, then use the clues to narrow down its independent daily answer:
+
+- Standard is selected by default and includes only champions from the highest `setOrder` in the active catalog. Its redundant Set clue is hidden.
+- Wild preserves the original all-set game, with every set-specific champion version in play.
+- Both puzzles can be completed each day and maintain independent guesses, streaks, and statistics.
 
 - Set, Cost, Health, Attack Damage, and Range show an exact match or whether the answer is higher or lower.
 - Traits are exact only when the complete normalized trait set matches; any overlap is partial.
 - Guesses are unlimited. Completing consecutive UTC puzzles builds a streak.
-- Optional Easy mode removes champion versions that cannot reproduce all clues seen so far and summarizes the remaining possibilities. It must be selected before the first guess.
+- Optional Easy mode removes champion versions that cannot reproduce all clues seen so far and summarizes the remaining possibilities. It is selected and locked independently for each roster before that puzzle's first guess.
 - Progress and statistics stay in the browser. There are no accounts, APIs, or database.
 
 The puzzle epoch remains 14 November 2022, so existing puzzle numbering continues.
@@ -41,7 +45,7 @@ npm run test:e2e    # Playwright desktop and mobile flows
 
 ## TFT data updates
 
-`scripts/sync-tft-data.ts` reads fixed CommunityDragon snapshots for historical roster stages and `latest` for the current standard set. It excludes non-standard modes and non-playable entities, normalizes values, downloads local web assets, and writes `data/catalog.json`.
+`scripts/sync-tft-data.ts` reads fixed CommunityDragon snapshots for historical roster stages and `latest` for the current standard set. It excludes non-standard modes and non-playable entities, normalizes values, downloads local web assets, and writes `data/catalog.json`. Standard automatically follows the highest roster order; Wild uses the full snapshot. Pending snapshot salts are checked against recent answers for both modes.
 
 Run an initial active snapshot:
 
@@ -61,7 +65,7 @@ Source-specific anomalies belong in `scripts/tft-overrides.ts`; do not hide broa
 
 ## Persistence and troubleshooting
 
-The current schema is stored under `tftdle:v3`. It stores the daily mode and separate Standard/Easy guess statistics while sharing completions and streaks. Existing v2 history migrates into Standard statistics without deleting the old key. Earlier locale-key guesses can still be mapped for the current day by champion name and set. Invalid current data is removed safely and only the current day is reset.
+The current schema is stored under `tftdle:v4`. It stores separate Standard and Wild daily state and statistics, with Normal/Easy breakdowns inside each roster. Existing v3 all-set progress migrates into Wild, while Standard starts fresh; v2 and earlier locale-key games also migrate into Wild/Normal. Old keys are left untouched. Invalid current data is removed safely and both current-day games are reset without losing valid aggregate history.
 
 If generation fails, check the source patch and mutator in `scripts/tft-sources.ts`. CommunityDragon occasionally renames mutators when a set transitions between stages.
 

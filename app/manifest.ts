@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "TFTdle",
     short_name: "TFTdle",
-    description: "A daily TFT champion guessing game spanning every standard set.",
+    description: "Daily Standard and Wild TFT champion guessing games.",
     start_url: "/",
     display: "standalone",
     background_color: "#101722",

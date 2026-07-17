@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { daysBetweenUtc, formatCountdown, puzzleNumber } from "@/lib/game/date";
-import { answerForDate, shuffledChampionIds, snapshotForDate } from "@/lib/game/selection";
+import { answerForDate, championsForRoster, shuffledChampionIds, snapshotForDate } from "@/lib/game/selection";
 import { champion, snapshot } from "./fixtures";
 
 describe("UTC puzzle dates", () => {
@@ -20,6 +20,17 @@ describe("daily selection", () => {
   it("is deterministic and does not repeat within a cycle", () => {
     expect(shuffledChampionIds(active, 0)).toEqual(shuffledChampionIds(active, 0));
     expect(new Set(shuffledChampionIds(active, 0))).toHaveLength(champions.length);
+    expect(answerForDate(manifest, "2026-07-15").id).toBe(answerForDate(manifest, "2026-07-15", "wild").id);
+  });
+  it("limits Standard to the highest roster order with its own unique cycle", () => {
+    const mixed = snapshot([
+      ...champions.slice(0, 6),
+      ...champions.slice(6).map((unit, index) => ({ ...unit, id: `2:c${index}`, setId: "2", setLabel: "Set 2", setOrder: 2 })),
+    ]);
+    expect(championsForRoster(mixed, "standard").every((unit) => unit.setOrder === 2)).toBe(true);
+    expect(championsForRoster(mixed, "wild")).toHaveLength(12);
+    expect(new Set(shuffledChampionIds(mixed, 0, "standard"))).toHaveLength(6);
+    expect(answerForDate({ version: 2, active: mixed, pending: null }, "2026-07-15", "standard").setId).toBe("2");
   });
   it("activates a pending catalog at its UTC boundary", () => {
     expect(snapshotForDate(manifest, "2026-07-15").id).toBe("test");

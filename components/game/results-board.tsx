@@ -49,7 +49,8 @@ function ClueCell({ champion, clue, kind, mobile = false }: { champion: Champion
   );
 }
 
-export function ResultsBoard({ guesses, answer }: { guesses: readonly Champion[]; answer: Champion }) {
+export function ResultsBoard({ guesses, answer, showSet = true }: { guesses: readonly Champion[]; answer: Champion; showSet?: boolean }) {
+  const clues = showSet ? CLUES : CLUES.filter((clue) => clue.key !== "set");
   if (!guesses.length) return (
     <section className="rounded-xl border border-dashed bg-card/35 px-6 py-12 text-center" aria-label="No guesses yet">
       <p className="text-sm font-medium text-foreground">Your clues will appear here</p>
@@ -62,14 +63,14 @@ export function ResultsBoard({ guesses, answer }: { guesses: readonly Champion[]
       <h2 id="guesses-heading" className="sr-only">Guesses</h2>
       <div className="hidden overflow-x-auto md:block">
         <table className="w-full border-separate border-spacing-x-1.5 border-spacing-y-2 text-sm">
-          <thead><tr><th className="pb-1 text-left font-mono text-xs uppercase tracking-wider text-muted-foreground">Champion</th>{CLUES.map((clue) => <th key={clue.key} className="pb-1 font-mono text-xs uppercase tracking-wider text-muted-foreground">{clue.label}</th>)}</tr></thead>
+          <thead><tr><th className="pb-1 text-left font-mono text-xs uppercase tracking-wider text-muted-foreground">Champion</th>{clues.map((clue) => <th key={clue.key} className="pb-1 font-mono text-xs uppercase tracking-wider text-muted-foreground">{clue.label}</th>)}</tr></thead>
           <tbody>{guesses.map((champion) => {
             const comparison = compareChampion(champion, answer);
             return <tr key={champion.id}>
               <th scope="row" className="min-w-40 rounded-lg border bg-card p-2 text-left">
                 <span className="flex items-center gap-3"><Image src={champion.image} alt={`${champion.name} portrait`} width={52} height={52} className="size-13 rounded-md object-cover" /><span><span className="block font-semibold">{champion.name}</span><span className="text-xs font-normal text-muted-foreground">{champion.setLabel}</span></span></span>
               </th>
-              {CLUES.map((clue) => <td key={clue.key} className="min-w-20"><ClueCell champion={champion} clue={clue} kind={comparison[clue.key]} /></td>)}
+              {clues.map((clue) => <td key={clue.key} className="min-w-20"><ClueCell champion={champion} clue={clue} kind={comparison[clue.key]} /></td>)}
             </tr>;
           })}</tbody>
         </table>
@@ -78,7 +79,7 @@ export function ResultsBoard({ guesses, answer }: { guesses: readonly Champion[]
         const comparison = compareChampion(champion, answer);
         return <article key={champion.id} className="rounded-xl border bg-card/80 p-3">
           <header className="mb-3 flex items-center gap-3"><Image src={champion.image} alt={`${champion.name} portrait`} width={48} height={48} className="size-12 rounded-lg object-cover" /><div><h3 className="font-semibold">{champion.name}</h3><p className="text-xs text-muted-foreground">{champion.setLabel}</p></div></header>
-          <div className="grid grid-cols-3 gap-2">{CLUES.map((clue) => <ClueCell key={clue.key} champion={champion} clue={clue} kind={comparison[clue.key]} mobile />)}</div>
+          <div className={cn("grid gap-2", showSet ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-3")}>{clues.map((clue) => <ClueCell key={clue.key} champion={champion} clue={clue} kind={comparison[clue.key]} mobile />)}</div>
         </article>;
       })}</div>
     </section>

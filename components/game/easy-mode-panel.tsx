@@ -3,7 +3,7 @@
 import { CheckCircle2, LockKeyhole, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DeductionSummary } from "@/lib/game/easy";
-import type { GameMode } from "@/lib/game/types";
+import type { AssistMode } from "@/lib/game/types";
 
 function compactList(values: readonly string[], limit = 4) {
   if (values.length <= limit) return values.join(", ");
@@ -15,7 +15,7 @@ function numberBand({ min, max }: { min: number; max: number }) {
 }
 
 export function EasyModePanel({
-  mode,
+  assistMode,
   locked,
   hasGuesses,
   possibleCount,
@@ -23,9 +23,9 @@ export function EasyModePanel({
   summary,
   recovery,
   completed,
-  onModeChange,
+  onAssistModeChange,
 }: {
-  mode: GameMode;
+  assistMode: AssistMode;
   locked: boolean;
   hasGuesses: boolean;
   possibleCount: number;
@@ -33,9 +33,9 @@ export function EasyModePanel({
   summary: DeductionSummary | null;
   recovery: boolean;
   completed: boolean;
-  onModeChange: (mode: GameMode) => void;
+  onAssistModeChange: (mode: AssistMode) => void;
 }) {
-  const enabled = mode === "easy";
+  const enabled = assistMode === "easy";
   const eliminated = Math.max(0, totalCount - possibleCount);
   const facts = summary ? [
     ["Sets", compactList(summary.setLabels)],
@@ -59,7 +59,7 @@ export function EasyModePanel({
           aria-checked={enabled}
           aria-label="Easy mode"
           disabled={locked}
-          onClick={() => onModeChange(enabled ? "standard" : "easy")}
+          onClick={() => onAssistModeChange(enabled ? "normal" : "easy")}
           className={cn(
             "relative h-7 w-12 shrink-0 rounded-full border transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60",
             enabled ? "border-primary/70 bg-primary" : "border-border bg-muted",
@@ -68,7 +68,7 @@ export function EasyModePanel({
           <span
             data-slot="switch-thumb"
             className={cn(
-              "pointer-events-none absolute left-0.5 top-0.5 size-5 rounded-full bg-white shadow-sm transition-transform",
+              "pointer-events-none absolute left-0.5 top-[3px] size-5 rounded-full bg-white shadow-sm transition-transform",
               enabled ? "translate-x-[22px]" : "translate-x-0",
             )}
           />

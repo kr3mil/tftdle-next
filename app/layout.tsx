@@ -9,11 +9,11 @@ const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono"
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.tftdle.com"),
   title: { default: "TFTdle — Daily TFT Champion Guessing Game", template: "%s · TFTdle" },
-  description: "Guess the daily Teamfight Tactics champion using set, traits, cost, health, attack damage, and range clues.",
+  description: "Play two daily Teamfight Tactics champion puzzles: Standard for the latest set and Wild for every historical set.",
   applicationName: "TFTdle",
   alternates: { canonical: "/" },
-  openGraph: { title: "TFTdle", description: "A daily champion guessing game spanning every TFT set.", url: "/", siteName: "TFTdle", type: "website" },
-  twitter: { card: "summary_large_image", title: "TFTdle", description: "A daily champion guessing game spanning every TFT set." },
+  openGraph: { title: "TFTdle", description: "Two daily TFT champion puzzles: Standard and Wild.", url: "/", siteName: "TFTdle", type: "website" },
+  twitter: { card: "summary_large_image", title: "TFTdle", description: "Two daily TFT champion puzzles: Standard and Wild." },
   icons: { icon: "/icon.svg" },
 };
 

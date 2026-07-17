@@ -12,7 +12,7 @@ const summary = {
 describe("Easy mode panel", () => {
   it("toggles before the first guess and explains the assistance", async () => {
     const onModeChange = vi.fn();
-    const { container } = render(<EasyModePanel mode="standard" locked={false} hasGuesses={false} possibleCount={100} totalCount={100} summary={null} recovery={false} completed={false} onModeChange={onModeChange} />);
+    const { container } = render(<EasyModePanel assistMode="normal" locked={false} hasGuesses={false} possibleCount={100} totalCount={100} summary={null} recovery={false} completed={false} onAssistModeChange={onModeChange} />);
     const toggle = screen.getByRole("switch", { name: "Easy mode" });
     expect(toggle).toHaveAttribute("aria-checked", "false");
     expect(toggle.querySelector('[data-slot="switch-thumb"]')).toHaveClass("left-0.5", "translate-x-0");
@@ -22,7 +22,7 @@ describe("Easy mode panel", () => {
   });
 
   it("shows deductions and locks after a guess", async () => {
-    const { container } = render(<EasyModePanel mode="easy" locked hasGuesses possibleCount={12} totalCount={100} summary={summary} recovery={false} completed={false} onModeChange={vi.fn()} />);
+    const { container } = render(<EasyModePanel assistMode="easy" locked hasGuesses possibleCount={12} totalCount={100} summary={summary} recovery={false} completed={false} onAssistModeChange={vi.fn()} />);
     const toggle = screen.getByRole("switch", { name: "Easy mode" });
     expect(toggle).toBeDisabled();
     expect(toggle.querySelector('[data-slot="switch-thumb"]')).toHaveClass("left-0.5", "translate-x-[22px]");
@@ -33,7 +33,7 @@ describe("Easy mode panel", () => {
   });
 
   it("replaces the final possibility count with an explicit solved state", async () => {
-    const { container } = render(<EasyModePanel mode="easy" locked hasGuesses possibleCount={1} totalCount={100} summary={summary} recovery={false} completed onModeChange={vi.fn()} />);
+    const { container } = render(<EasyModePanel assistMode="easy" locked hasGuesses possibleCount={1} totalCount={100} summary={summary} recovery={false} completed onAssistModeChange={vi.fn()} />);
     expect(screen.getByText("Puzzle solved")).toBeVisible();
     expect(screen.getByText(/all clues confirmed/i)).toBeVisible();
     expect(screen.queryByText(/1 possibility remaining/i)).not.toBeInTheDocument();

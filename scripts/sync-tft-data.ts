@@ -136,12 +136,17 @@ function dateOffset(dateKey: string, offset: number) {
 }
 
 function avoidRecentAnswer(snapshot: CatalogSnapshot, active: CatalogSnapshot) {
-  const recent = new Set(Array.from({ length: 30 }, (_, index) => answerForDate({ version: 2, active, pending: null }, dateOffset(snapshot.effectiveFromUtc, -(index + 1))).id));
+  const rosterModes = ["standard", "wild"] as const;
+  const recentByRoster = Object.fromEntries(rosterModes.map((rosterMode) => [
+    rosterMode,
+    new Set(Array.from({ length: 30 }, (_, index) => answerForDate({ version: 2, active, pending: null }, dateOffset(snapshot.effectiveFromUtc, -(index + 1)), rosterMode).id)),
+  ])) as Record<(typeof rosterModes)[number], Set<string>>;
   for (let attempt = 0; attempt < 100; attempt += 1) {
     const candidate = { ...snapshot, selectionSalt: `${snapshot.selectionSalt}-${attempt}` };
-    if (!recent.has(answerForDate({ version: 2, active, pending: candidate }, snapshot.effectiveFromUtc).id)) return candidate;
+    const isSafe = rosterModes.every((rosterMode) => !recentByRoster[rosterMode].has(answerForDate({ version: 2, active, pending: candidate }, snapshot.effectiveFromUtc, rosterMode).id));
+    if (isSafe) return candidate;
   }
-  throw new Error("Could not select a pending-catalog salt without a recent answer repeat");
+  throw new Error("Could not select a pending-catalog salt without a recent Standard or Wild answer repeat");
 }
 
 async function main() {

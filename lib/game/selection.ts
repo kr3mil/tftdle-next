@@ -1,4 +1,4 @@
-import type { CatalogManifest, CatalogSnapshot, Champion } from "./types";
+import type { CatalogManifest, CatalogSnapshot, Champion, RosterMode } from "./types";
 import { daysBetweenUtc } from "./date";
 
 function xmur3(value: string) {
@@ -27,9 +27,16 @@ export function snapshotForDate(manifest: CatalogManifest, dateKey: string): Cat
   return manifest.pending && dateKey >= manifest.pending.effectiveFromUtc ? manifest.pending : manifest.active;
 }
 
-export function shuffledChampionIds(snapshot: CatalogSnapshot, cycle: number) {
-  const ids = snapshot.champions.map((champion) => champion.id).sort();
-  const random = mulberry32(xmur3(`${snapshot.checksum}:${snapshot.selectionSalt}:${cycle}`)());
+export function championsForRoster(snapshot: CatalogSnapshot, rosterMode: RosterMode) {
+  if (rosterMode === "wild") return snapshot.champions;
+  const latestOrder = Math.max(...snapshot.champions.map((champion) => champion.setOrder));
+  return snapshot.champions.filter((champion) => champion.setOrder === latestOrder);
+}
+
+export function shuffledChampionIds(snapshot: CatalogSnapshot, cycle: number, rosterMode: RosterMode = "wild") {
+  const ids = championsForRoster(snapshot, rosterMode).map((champion) => champion.id).sort();
+  const namespace = rosterMode === "wild" ? "" : `:${rosterMode}`;
+  const random = mulberry32(xmur3(`${snapshot.checksum}:${snapshot.selectionSalt}${namespace}:${cycle}`)());
   for (let index = ids.length - 1; index > 0; index -= 1) {
     const swapIndex = Math.floor(random() * (index + 1));
     [ids[index], ids[swapIndex]] = [ids[swapIndex]!, ids[index]!];
@@ -37,13 +44,14 @@ export function shuffledChampionIds(snapshot: CatalogSnapshot, cycle: number) {
   return ids;
 }
 
-export function answerForDate(manifest: CatalogManifest, dateKey: string): Champion {
+export function answerForDate(manifest: CatalogManifest, dateKey: string, rosterMode: RosterMode = "wild"): Champion {
   const snapshot = snapshotForDate(manifest, dateKey);
+  const champions = championsForRoster(snapshot, rosterMode);
   const dayOffset = Math.max(0, daysBetweenUtc(snapshot.effectiveFromUtc, dateKey));
-  const cycle = Math.floor(dayOffset / snapshot.champions.length);
-  const index = dayOffset % snapshot.champions.length;
-  const answerId = shuffledChampionIds(snapshot, cycle)[index];
-  const answer = snapshot.champions.find((champion) => champion.id === answerId);
-  if (!answer) throw new Error(`No answer for ${dateKey}`);
+  const cycle = Math.floor(dayOffset / champions.length);
+  const index = dayOffset % champions.length;
+  const answerId = shuffledChampionIds(snapshot, cycle, rosterMode)[index];
+  const answer = champions.find((champion) => champion.id === answerId);
+  if (!answer) throw new Error(`No ${rosterMode} answer for ${dateKey}`);
   return answer;
 }

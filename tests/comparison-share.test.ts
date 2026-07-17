@@ -15,9 +15,9 @@ describe("champion comparison", () => {
     expect(compareChampion(champion({ traits: [] }), answer).traits).toBe("miss");
   });
   it("builds sharing from the same comparison engine", () => {
-    const text = buildShareText(42, [answer], answer);
-    expect(text).toContain("TFTdle #42 · 1 guess");
+    const text = buildShareText(42, [answer], answer, "standard");
+    expect(text).toContain("TFTdle Standard #42 · 1 guess");
     expect(text).toContain("🟩🟩🟩🟩🟩🟩");
-    expect(buildShareText(42, [answer], answer, "easy")).toContain("TFTdle #42 · Easy · 1 guess");
+    expect(buildShareText(42, [answer], answer, "wild", "easy")).toContain("TFTdle Wild #42 · Easy · 1 guess");
   });
 });

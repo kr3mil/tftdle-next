@@ -1,28 +1,47 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import catalog from "../../data/catalog.json";
-import { answerForDate } from "../../lib/game/selection";
-import { snapshotForDate } from "../../lib/game/selection";
+import { answerForDate, championsForRoster, snapshotForDate } from "../../lib/game/selection";
 import { utcDateKey } from "../../lib/game/date";
 import { possibleChampions } from "../../lib/game/easy";
-import type { CatalogManifest } from "../../lib/game/types";
+import type { CatalogManifest, Champion, RosterMode } from "../../lib/game/types";
 
-test("completes and persists the daily puzzle", async ({ page }) => {
-  const answer = answerForDate(catalog as CatalogManifest, utcDateKey());
-  await page.goto("/");
+const manifest = catalog as CatalogManifest;
+
+async function chooseChampion(page: Page, champion: Champion) {
   await page.getByRole("combobox", { name: "Choose a champion" }).click();
-  await page.getByRole("combobox", { name: "Search champions" }).fill(`${answer.name} ${answer.setLabel}`);
-  await page.locator("[cmdk-item]").filter({ hasText: answer.name }).filter({ hasText: answer.setLabel }).first().click();
-  const completion = page.getByRole("status", { name: "Puzzle complete" });
-  await expect(completion).toBeVisible();
-  await expect(completion).toBeFocused();
-  await expect(page.getByRole("combobox", { name: "Puzzle complete" })).toBeDisabled();
-  await expect(page.getByText(`You found ${answer.name}`)).toBeVisible();
+  await page.getByRole("combobox", { name: "Search champions" }).fill(`${champion.name} ${champion.setLabel}`);
+  await page.locator("[cmdk-item]").filter({ hasText: champion.name }).filter({ hasText: champion.setLabel }).first().click();
+}
+
+async function selectRoster(page: Page, rosterMode: RosterMode) {
+  await page.getByRole("button", { name: new RegExp(`^${rosterMode === "standard" ? "Standard" : "Wild"}`, "i") }).click();
+}
+
+test("completes and persists independent Standard and Wild puzzles", async ({ page }) => {
+  const date = utcDateKey();
+  const standardAnswer = answerForDate(manifest, date, "standard");
+  const wildAnswer = answerForDate(manifest, date, "wild");
+  await page.goto("/");
+
+  await expect(page.getByRole("button", { name: /^Standard/i })).toHaveAttribute("aria-pressed", "true");
+  await chooseChampion(page, standardAnswer);
+  await expect(page.getByRole("status", { name: "Puzzle complete" })).toBeFocused();
+  await expect(page.getByText(`You found ${standardAnswer.name}`)).toBeVisible();
+
+  await selectRoster(page, "wild");
+  await expect(page.getByRole("combobox", { name: "Choose a champion" })).toBeEnabled();
+  await chooseChampion(page, wildAnswer);
+  await expect(page.getByText(`You found ${wildAnswer.name}`)).toBeVisible();
+
   await page.reload();
-  await expect(page.getByText(`You found ${answer.name}`)).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Standard/i })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText(`You found ${standardAnswer.name}`)).toBeVisible();
+  await selectRoster(page, "wild");
+  await expect(page.getByText(`You found ${wildAnswer.name}`)).toBeVisible();
 });
 
 test("recovers corrupted storage and remains usable", async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem("tftdle:v3", "broken"));
+  await page.addInitScript(() => localStorage.setItem("tftdle:v4", "broken"));
   await page.goto("/");
   await expect(page.getByText(/saved data was damaged/i)).toBeVisible();
   await expect(page.getByRole("combobox", { name: "Choose a champion" })).toBeEnabled();
@@ -51,35 +70,53 @@ test("keeps the champion picker within the viewport", async ({ page }) => {
   await expect.poll(() => list.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
 });
 
-test("narrows and persists an Easy-mode daily puzzle", async ({ page }) => {
-  const manifest = catalog as CatalogManifest;
+test("narrows Standard independently with Easy mode and hides the Set clue", async ({ page }) => {
   const date = utcDateKey();
   const snapshot = snapshotForDate(manifest, date);
-  const answer = answerForDate(manifest, date);
-  const wrong = snapshot.champions.find((champion) => champion.id !== answer.id)!;
-  const expected = possibleChampions(snapshot.champions, [wrong], answer);
+  const pool = championsForRoster(snapshot, "standard");
+  const answer = answerForDate(manifest, date, "standard");
+  const wrong = pool.find((champion) => champion.id !== answer.id)!;
+  const expected = possibleChampions(pool, [wrong], answer);
 
   await page.goto("/");
   const easyToggle = page.getByRole("switch", { name: "Easy mode" });
   await easyToggle.click();
-  await expect(easyToggle).toHaveAttribute("aria-checked", "true");
-
-  await page.getByRole("combobox", { name: "Choose a champion" }).click();
-  await page.getByRole("combobox", { name: "Search champions" }).fill(`${wrong.name} ${wrong.setLabel}`);
-  await page.locator("[cmdk-item]").filter({ hasText: wrong.name }).filter({ hasText: wrong.setLabel }).first().click();
+  await chooseChampion(page, wrong);
 
   await expect(easyToggle).toBeDisabled();
-  await expect(page.getByText(`${expected.length.toLocaleString()} possibilities remaining · ${(snapshot.champions.length - expected.length).toLocaleString()} eliminated`)).toBeVisible();
-  await page.reload();
-  await expect(page.getByRole("switch", { name: "Easy mode" })).toHaveAttribute("aria-checked", "true");
-  await expect(page.getByRole("switch", { name: "Easy mode" })).toBeDisabled();
+  await expect(page.getByText(`${expected.length.toLocaleString()} possibilities remaining · ${(pool.length - expected.length).toLocaleString()} eliminated`)).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Set" })).toHaveCount(0);
 
-  await page.getByRole("combobox", { name: "Choose a champion" }).click();
-  await page.getByRole("combobox", { name: "Search champions" }).fill(`${answer.name} ${answer.setLabel}`);
-  await page.locator("[cmdk-item]").filter({ hasText: answer.name }).filter({ hasText: answer.setLabel }).first().click();
-  await expect(page.getByText(`You found ${answer.name}`)).toBeVisible();
+  await selectRoster(page, "wild");
+  const wildToggle = page.getByRole("switch", { name: "Easy mode" });
+  await expect(wildToggle).toBeEnabled();
+  await expect(wildToggle).toHaveAttribute("aria-checked", "false");
+  const wildAnswer = answerForDate(manifest, date, "wild");
+  const wildWrong = snapshot.champions.find((champion) => champion.id !== wildAnswer.id)!;
+  await chooseChampion(page, wildWrong);
+  await expect.poll(() => page.getByText("Set", { exact: true }).count()).toBeGreaterThan(0);
+
+  await selectRoster(page, "standard");
+  await chooseChampion(page, answer);
   await expect(page.getByText("Puzzle solved")).toBeVisible();
   await expect(page.getByText(/1 possibility remaining/i)).toHaveCount(0);
-  await expect(page.getByRole("status", { name: "Puzzle complete" })).toBeFocused();
-  await expect(page.locator('[data-slot="badge"]').filter({ hasText: "Easy mode" })).toBeVisible();
+});
+
+test("migrates the existing all-set daily into Wild", async ({ page }) => {
+  const date = utcDateKey();
+  const wildAnswer = answerForDate(manifest, date, "wild");
+  const emptyModeStats = { startedDates: [], completedDates: [], totalGuesses: 0, bestGuessCount: null, distribution: {} };
+  await page.addInitScript(({ currentDate, answerId, stats }) => {
+    localStorage.setItem("tftdle:v3", JSON.stringify({
+      version: 3,
+      daily: { date: currentDate, answerId, guesses: [answerId], completed: true, mode: "standard" },
+      stats: { startedDates: [currentDate], completedDates: [currentDate], byMode: { standard: { ...stats, startedDates: [currentDate], completedDates: [currentDate], totalGuesses: 1, bestGuessCount: 1, distribution: { "1": 1 } }, easy: stats } },
+      settings: { defaultMode: "standard" },
+    }));
+  }, { currentDate: date, answerId: wildAnswer.id, stats: emptyModeStats });
+
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: /^Standard/i })).toHaveAttribute("aria-pressed", "true");
+  await selectRoster(page, "wild");
+  await expect(page.getByText(`You found ${wildAnswer.name}`)).toBeVisible();
 });

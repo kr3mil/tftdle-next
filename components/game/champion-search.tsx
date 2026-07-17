@@ -6,14 +6,15 @@ import { Check, CheckCircle2, ChevronsUpDown, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import type { Champion } from "@/lib/game/types";
+import type { Champion, RosterMode } from "@/lib/game/types";
 
-export function ChampionSearch({ champions, guessedIds, disabled, easyMode, completed, onGuess }: {
+export function ChampionSearch({ champions, guessedIds, disabled, easyMode, completed, rosterMode, onGuess }: {
   champions: readonly Champion[];
   guessedIds: readonly string[];
   disabled: boolean;
   easyMode: boolean;
   completed: boolean;
+  rosterMode: RosterMode;
   onGuess: (champion: Champion) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -41,7 +42,7 @@ export function ChampionSearch({ champions, guessedIds, disabled, easyMode, comp
         >
           {completed
             ? <span className="flex items-center gap-3 text-success"><CheckCircle2 className="size-5" />Puzzle complete</span>
-            : <span className="flex items-center gap-3 text-muted-foreground"><Search className="size-5" />Search champion or set…</span>}
+            : <span className="flex items-center gap-3 text-muted-foreground"><Search className="size-5" />{rosterMode === "standard" ? "Search champion or trait…" : "Search champion or set…"}</span>}
           {!completed && <ChevronsUpDown className="size-4 opacity-50" />}
         </Button>
       </PopoverTrigger>
@@ -51,10 +52,10 @@ export function ChampionSearch({ champions, guessedIds, disabled, easyMode, comp
         collisionPadding={16}
       >
         <Command shouldFilter={false}>
-          <CommandInput value={query} onValueChange={setQuery} placeholder="Try ‘Ahri’, ‘Set 10’, or a trait…" aria-label="Search champions" />
+          <CommandInput value={query} onValueChange={setQuery} placeholder={rosterMode === "standard" ? "Try ‘Ahri’ or a trait…" : "Try ‘Ahri’, ‘Set 10’, or a trait…"} aria-label="Search champions" />
           <CommandList className="max-h-[min(28rem,calc(var(--radix-popover-content-available-height)-2.5rem))]">
             <CommandEmpty>{easyMode ? "No possible champions match that search." : "No champions match that search."}</CommandEmpty>
-            <CommandGroup heading={easyMode ? `${available.length} possible champion versions` : `${visible.length}${visible.length < available.length ? "+" : ""} champion versions shown`}>
+            <CommandGroup heading={easyMode ? `${available.length} possible champions` : `${visible.length}${visible.length < available.length ? "+" : ""} ${rosterMode === "standard" ? "champions" : "champion versions"} shown`}>
               {visible.map((champion) => (
                 <CommandItem
                   key={champion.id}
