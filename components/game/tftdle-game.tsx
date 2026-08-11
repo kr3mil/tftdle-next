@@ -27,7 +27,10 @@ type Action =
   | { type: "notice"; notice: string };
 
 function reducer(state: State, action: Action): State {
-  if (action.type === "hydrate") return { game: action.game, recovered: action.recovered, notice: action.recovered ? "Saved data was damaged, so today’s games were safely reset." : "" };
+  if (action.type === "hydrate") {
+    const recovered = state.recovered || action.recovered;
+    return { game: action.game, recovered, notice: recovered ? "Saved data was damaged, so today’s games were safely reset." : "" };
+  }
   if (action.type === "notice") return { ...state, notice: action.notice };
   if (action.type === "assist") return state.game ? {
     ...state,
