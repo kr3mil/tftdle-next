@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
@@ -22,7 +23,10 @@ export const viewport: Viewport = { colorScheme: "dark", themeColor: "#101722" }
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`dark ${geistSans.variable} ${geistMono.variable}`}>
-      <body className="font-sans antialiased"><TooltipProvider>{children}</TooltipProvider></body>
+      <body className="font-sans antialiased">
+        <TooltipProvider>{children}</TooltipProvider>
+        <Analytics />
+      </body>
     </html>
   );
 }
