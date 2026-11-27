@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "tftdle",
+  "compatibility_date": "2026-11-27",
+  "workers_dev": true,
+  "preview_urls": true,
+  "routes": [{ "pattern": "www.tftdle.com/*", "zone_name": "tftdle.com" }],
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page"
+  }
+}

@@ -17,6 +17,30 @@ async function selectRoster(page: Page, rosterMode: RosterMode) {
   await page.getByRole("button", { name: new RegExp(`^${rosterMode === "standard" ? "Standard" : "Wild"}`, "i") }).click();
 }
 
+test("serves the social preview and crawler metadata", async ({ page, request }) => {
+  await page.goto("/");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /^https:\/\/www\.tftdle\.com\/?$/);
+
+  const socialImage = await page.locator('meta[property="og:image"]').getAttribute("content");
+  expect(socialImage).toBeTruthy();
+  const imageUrl = new URL(socialImage!, "https://www.tftdle.com");
+  const image = await request.get(imageUrl.pathname + imageUrl.search);
+  expect(image.ok()).toBe(true);
+  expect(image.headers()["content-type"]).toMatch(/^image\/png\b/);
+
+  const robots = await request.get("/robots.txt");
+  expect(robots.ok()).toBe(true);
+  expect(await robots.text()).toContain("Sitemap: https://www.tftdle.com/sitemap.xml");
+
+  const sitemap = await request.get("/sitemap.xml");
+  expect(sitemap.ok()).toBe(true);
+  expect(await sitemap.text()).toContain("<loc>https://www.tftdle.com</loc>");
+
+  const manifest = await request.get("/manifest.webmanifest");
+  expect(manifest.ok()).toBe(true);
+  expect(await manifest.json()).toMatchObject({ name: "TFTdle", start_url: "/" });
+});
+
 test("completes and persists independent Standard and Wild puzzles", async ({ page }) => {
   const date = utcDateKey();
   const standardAnswer = answerForDate(manifest, date, "standard");

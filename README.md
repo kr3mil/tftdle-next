@@ -71,12 +71,17 @@ If generation fails, check the source patch and mutator in `scripts/tft-sources.
 
 ## Deployment
 
-The application is designed for Vercel preview and production deployments. Before promoting a release:
+Next.js exports the site to `out/`. Cloudflare Workers serves that directory as static assets. Daily answers, pending catalog activation, and saved progress run in the browser.
 
-1. Run `npm run check`, `npm run build`, and the Chromium Playwright project.
-2. Confirm the answer is identical with browser time zones set to UTC-8 and UTC+10.
-3. Verify `tftdle.com` DNS, HTTPS, canonical metadata, `robots.txt`, sitemap, and the social preview.
-4. Confirm there are no high or critical production audit findings.
+```bash
+npm run build
+npm start                                      # Wrangler preview on localhost:3000
+PLAYWRIGHT_BASE_URL=http://localhost:3000 npm run test:e2e
+```
+
+Use `npm run deploy` to publish a built export with an authenticated Wrangler session. For automatic catalog and app releases, connect the `tftdle` Worker to this GitHub repository in Workers Builds. Use `main` as the production branch, `npm run build` for the build command, and `npm run deploy` for the deploy command.
+
+The Worker route serves `www.tftdle.com`, which lets browsers keep using their existing local storage. The Cloudflare zone rule `Redirect TFTdle apex to www` sends proxied requests for `tftdle.com` to `www.tftdle.com` with a 308 status, preserving paths and query strings. Both DNS records must be proxied for Cloudflare to handle requests. Switching both records back to DNS only bypasses the Worker route and redirect rule and restores the previous Vercel routing while its DNS targets and deployment are still available.
 
 ## Legal
 

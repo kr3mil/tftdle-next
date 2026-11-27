@@ -19,7 +19,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
-      - run: npm run build
       - run: npm audit --omit=dev --audit-level=high
 
   browser:
@@ -31,6 +30,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e -- --project=chromium
         env:

@@ -11,7 +11,7 @@ export default defineConfig({
   use: { baseURL, trace: "on-first-retry" },
   ...(externalBaseUrl
     ? {}
-    : { webServer: { command: "npm run dev", url: baseURL, reuseExistingServer: !process.env.CI } }),
+    : { webServer: { command: process.env.CI ? "npm start" : "npm run dev", url: baseURL, reuseExistingServer: !process.env.CI } }),
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     { name: "mobile", use: { ...devices["Pixel 7"] } },
