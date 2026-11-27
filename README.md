@@ -79,9 +79,11 @@ npm start                                      # Wrangler preview on localhost:3
 PLAYWRIGHT_BASE_URL=http://localhost:3000 npm run test:e2e
 ```
 
-Use `npm run deploy` to publish a built export with an authenticated Wrangler session. For automatic catalog and app releases, connect the `tftdle` Worker to this GitHub repository in Workers Builds. Use `main` as the production branch, `npm run build` for the build command, and `npm run deploy` for the deploy command.
+Cloudflare Workers Builds deploys the `tftdle` Worker on pushes to `main` using `npm run build` and `npm run deploy`. To publish a built export manually, run `npm run deploy` with an authenticated Wrangler session.
 
-The Worker route serves `www.tftdle.com`, which lets browsers keep using their existing local storage. The Cloudflare zone rule `Redirect TFTdle apex to www` sends proxied requests for `tftdle.com` to `www.tftdle.com` with a 308 status, preserving paths and query strings. Both DNS records must be proxied for Cloudflare to handle requests. Switching both records back to DNS only bypasses the Worker route and redirect rule and restores the previous Vercel routing while its DNS targets and deployment are still available.
+The Worker route serves `www.tftdle.com`, which lets browsers keep using their existing local storage. The Cloudflare zone rule `Redirect TFTdle apex to www` sends proxied requests for `tftdle.com` to `www.tftdle.com` with a 308 status, preserving paths and query strings. Both hostnames use proxied DNS records with a placeholder address because Cloudflare serves the site and the redirect directly.
+
+To roll back an app release, restore a known-good version of the `tftdle` Worker in Cloudflare. Verify the live game and apex redirect after the rollback.
 
 ## Legal
 
