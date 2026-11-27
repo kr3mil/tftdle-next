@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "wrangler dev --port 3000",
+    "deploy": "wrangler deploy",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -16,17 +17,16 @@
     "check": "npm run data:check && npm run lint && npm run typecheck && npm run test"
   },
   "dependencies": {
-    "@vercel/analytics": "^2.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "lucide-react": "^1.24.0",
-    "next": "16.3.0",
+    "next": "16.4.6",
     "radix-ui": "^1.6.2",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "tailwind-merge": "^3.6.0",
-    "zod": "^4.4.3"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
@@ -40,7 +40,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
     "eslint": "^9.39.5",
-    "eslint-config-next": "^16.3.0",
+    "eslint-config-next": "^16.4.6",
     "jest-axe": "^10.0.0",
     "jsdom": "^29.1.1",
     "postcss": "^8.5.19",
@@ -48,7 +48,8 @@
     "tailwindcss": "4.3.2",
     "tsx": "^4.23.1",
     "typescript": "6.0.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "wrangler": "^4.168.0"
   },
   "engines": {
     "node": ">=24 <25",
